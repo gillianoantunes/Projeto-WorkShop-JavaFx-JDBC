@@ -9,9 +9,13 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import model.entities.Department;
 
 //controlador da tela DepartmentForm
 public class DepartmentFormController implements Initializable{
+	
+	//dependencia do departamento
+	private Department entity;
 
 	//declarar os componentes da tela
 	@FXML
@@ -29,6 +33,13 @@ public class DepartmentFormController implements Initializable{
 	@FXML
 	private Button btCancel;
 	
+	//metodo para implemtar set do entity criado em cima do department
+	//criou a instacia contrutor do departamento no controlador
+	public void setDepartment(Department entity) {
+		this.entity = entity;
+	}
+	
+
 	
 	//metodos dos eventos do botoes
 	
@@ -60,4 +71,14 @@ public class DepartmentFormController implements Initializable{
 		
 	}
 	
+	//pega os dados do departamento e joga no formulário
+	public void UpdateFormData() {
+		//testar se o entity esta nulo lança excecao
+		if((entity == null)) {
+			throw new IllegalStateException("Entidade está nula");
+		}
+		//valueof converte o id para inteiro pois a caixinha de texto é string
+		txtId.setText(String.valueOf(entity.getId()));
+		txtId.setText(entity.getName());
+	}
 }

@@ -50,9 +50,11 @@ public class DepartmentListController implements Initializable{
 	public void onBTNewAction(ActionEvent event) {
 		//chama a função em utils que pega a janela atual o stage atual
 		Stage parentStage = Utils.cuurentStage(event);
+		//instanciar departamento vazio e injetar no controlador
+		Department obj = new Department();
 		//chama a função createDialogForm que cria o formulario de cadastro de departamento
 		// o segundo argumento é a janela pai
-		createDialogForm("/gui/DepartmentForm.fxml",parentStage);
+		createDialogForm(obj, "/gui/DepartmentForm.fxml",parentStage);
 	}
 	public void setDepartmentService(DepartmentService servico) {
 		this.servico = servico;
@@ -91,11 +93,20 @@ public class DepartmentListController implements Initializable{
 
 	//cria a janela do formulario para preencher novo departamento
 	//essa função vai ser chamada no botao new da tela de departamento
-	private void createDialogForm(String absoluteName, Stage parentStage) {
+	private void createDialogForm(Department obj, String absoluteName, Stage parentStage) {
 		try {
 			//para carregar FXMLLoader
 			FXMLLoader loader = new FXMLLoader(getClass().getResource(absoluteName));
 			Pane pane = loader.load();
+			
+			//pega o controlador da tela que acabei de carregar
+			DepartmentFormController controller = loader.getController();
+			//injetar o departamento nesse controlador
+			controller.setDepartment(obj);
+			//chamar o metodo update para carregar os dados no formulario
+			controller.UpdateFormData();
+			
+			
 			//instanciar janela na frente da outra, palco na frente do outro
 			Stage dialogStage = new Stage();
 			//configuar titulo
