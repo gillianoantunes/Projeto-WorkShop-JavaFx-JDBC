@@ -3,7 +3,9 @@ package gui;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 
 import db.DbException;
 import gui.listeners.DataChangeListener;
@@ -18,6 +20,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import model.entities.Department;
+import model.exceptions.ValidationException;
 import model.services.DepartmentService;
 
 //controlador da tela DepartmentForm
@@ -94,6 +97,12 @@ public class DepartmentFormController implements Initializable{
 		//depois que salvar fechar a janela atual pegando o paramentro da janela atual
 		Utils.cuurentStage(event).close();
 		}
+		//tratar o validationException 
+		catch(ValidationException e) {
+			//chama o metodo abaixo setErrorMessage que escreve o erro no label da tela
+			//passando e.getErros que é nome do meu map que vai ser aquela coleção de erros na classe ValidtionException
+			setErrorMessages(e.getErrors());
+		}
 		catch(DbException e) {
 			Alerts.showAlert("Erro em salvar", null, e.getMessage(), AlertType.ERROR);
 		}
@@ -114,10 +123,27 @@ public class DepartmentFormController implements Initializable{
 	//pega os dados do formulario e instancia em departamento
 	private Department getFormData() {
 		Department obj = new Department();
+		
+		//verificar se tem erro primeiro instanciar o validationException
+		ValidationException exception = new ValidationException("Validação de erro");
 		//utils.tryParseToInt criei metodo para converter para inteiro
 		obj.setId((Utils.tryParseToInt(txtId.getText())));
+		
+		//verificar se txt name esta vazio
+		//se igual a null ou igual a string vazio equals
+		if(txtName.getText() == null || txtName.getText().trim().equals("")) {
+			//adicona erro na exceçaõ para guardar no map na classe ValidationException
+			//exeption é o nome da instancia que fiz acima
+			//adicona o nome do campo e a mensagem
+			exception.addError("name","O campo não pode ser vazio");
+		}
 		obj.setName(txtName.getText());
 		
+		//depois que passar disso mesmo vazio eu vou setar
+		//se existir algum erro eu lanço a minha exceção
+		if(exception.getErrors().size() > 0) {
+			throw exception;
+		}
 		return obj;
 	}
 
@@ -155,5 +181,20 @@ public class DepartmentFormController implements Initializable{
 		//valueof converte o id para inteiro pois a caixinha de texto é string
 		txtId.setText(String.valueOf(entity.getId()));
 		txtId.setText(entity.getName());
+	}
+	
+	//metodo para escrever no label na tela se houve algum erro
+	//percorre o map com os erros
+	private void setErrorMessages(Map<String, String> errors) {
+		//uma coleçao recebe os erros
+		Set<String> fields = errors.keySet();
+		
+		//testar se contem o valor name, se existir eu pego o label na tela e escrevo o texto dele com a mensagem de erro
+		//setar o label
+		if(fields.contains("name")) {	
+			// joga para o label de erros la na tela
+			labelErrorName.setText(errors.get("name"));
+		}
+		
 	}
 }
