@@ -15,4 +15,15 @@ public class DepartmentService {
 		//vai no banco e busca os departamentos
 		return dao.findAll();
 	}
+	
+	//metodo para verificar se vou inserir novo departamento no banco de dados ou atualizar
+	//se id igual estou inserindo um novo caso contario alterar
+	public void saveOrUpdate(Department obj) {
+		if(obj.getId() == null) {
+			dao.insert(obj);
+		}
+		else {
+			dao.update(obj);
+		}
+	}
 } 
