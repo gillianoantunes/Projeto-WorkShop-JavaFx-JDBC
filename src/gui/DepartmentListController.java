@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import application.Main;
+import gui.listeners.DataChangeListener;
 import gui.util.Alerts;
 import gui.util.Utils;
 import javafx.collections.FXCollections;
@@ -26,7 +27,7 @@ import javafx.stage.Stage;
 import model.entities.Department;
 import model.services.DepartmentService;
 
-public class DepartmentListController implements Initializable{
+public class DepartmentListController implements Initializable, DataChangeListener{
 	
 	//cria varivel do tipoDepartmentService para chamar o método findALL
 	private DepartmentService servico;
@@ -78,6 +79,7 @@ public class DepartmentListController implements Initializable{
 	
 	
 	//se for igual nulo o serviço
+	//funçao que atualiza os dados da tabela tableview
 	public void updateTableView() {
 		if(servico == null) {
 			throw new IllegalStateException("Serviço estava nulo");
@@ -105,9 +107,15 @@ public class DepartmentListController implements Initializable{
 			controller.setDepartment(obj);
 			//injetar o DepartamentService
 			controller.setDepartmentService(new DepartmentService());
+		
+			
+			//increver este objeto DepartmentListController para ser um listenner daquele evento
+			//quando alterar ele escuta aquele evento que atualizou eu me inscrevo com this, este objeto
+			//quando este medodosubscribe na classe DepartmentFormController for disparado eu me inscrevo
+			controller.subscribeDataChangeListener(this);
+			
 			//chamar o metodo update para carregar os dados no formulario
 			controller.UpdateFormData();
-			
 			
 			//instanciar janela na frente da outra, palco na frente do outro
 			Stage dialogStage = new Stage();
@@ -125,7 +133,14 @@ public class DepartmentListController implements Initializable{
 		}
 		catch(IOException e) {
 			Alerts.showAlert("IoException","Erro de carregamento", e.getMessage(), AlertType.ERROR);
-		}
+		}	
+	} 
+	//quando os dados forem alterados chamara este metodo e chama a minha funcao updateTableView que já tenho acima
+	//essa funçao atualiza os dados da tableview
+	@Override
+	public void onDataChanged() {
+		updateTableView();
+		//
 		
 	}
 }

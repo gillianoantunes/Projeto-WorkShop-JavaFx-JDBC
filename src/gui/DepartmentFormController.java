@@ -1,19 +1,22 @@
 package gui;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import db.DbException;
+import gui.listeners.DataChangeListener;
 import gui.util.Alerts;
 import gui.util.Constraints;
 import gui.util.Utils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Alert.AlertType;
 import model.entities.Department;
 import model.services.DepartmentService;
 
@@ -26,6 +29,10 @@ public class DepartmentFormController implements Initializable{
 	//dependencia de departmentservice
 	private DepartmentService service;
 
+	// guarda uma lista de objetos que quiera receber o evento de atualizacao da lista
+	private List<DataChangeListener> dataChangeListeners = new ArrayList<>();
+	
+	
 	//declarar os componentes da tela
 	@FXML
 	private TextField txtId;
@@ -53,6 +60,15 @@ public class DepartmentFormController implements Initializable{
 		this.service = service;
 	}
 	
+	//metodo para inscrever na lista atualizada listener
+	//todo objeto que implementar a interface DataChangeListener pode increver para receber este evento que atualiza depois de salvar,alterar ou excluir
+	//se salvar com sucesso no botao salvar alterar la
+	public void subscribeDataChangeListener(DataChangeListener listeners) {
+		dataChangeListeners.add(listeners);
+	}
+	
+	
+	
 	//metodos dos eventos do botoes
 	//salvar departamento no banco de dados
 	//passar o parametro da janela atual para ser fechada depois que salvar
@@ -73,6 +89,8 @@ public class DepartmentFormController implements Initializable{
 		entity = getFormData();
 		//chama o metodo saveorUpdate em DepartmentService para salvar no banco
 		service.saveOrUpdate(entity);
+		//se salvar com sucesso chamar o metodo para atualizar lista
+		notifyDataChangeListerners();
 		//depois que salvar fechar a janela atual pegando o paramentro da janela atual
 		Utils.cuurentStage(event).close();
 		}
@@ -81,6 +99,18 @@ public class DepartmentFormController implements Initializable{
 		}
 	}
 	
+	// executar o metodo onDataChanged na interface DataChangeListener para atualizar
+	//o listeners emite o metodo o observer na claase DepartmentList irá escutar o metodo Listener
+	private void notifyDataChangeListerners() {
+		//para cada datachangeListeners pertencente a minha lista dataChangeListeners vou fazer
+		//um listener.onDataChanged
+		for (DataChangeListener listener : dataChangeListeners) {
+			//este metodo estara implementado em departmenteListController
+			//ele atualiza os dados da tabela
+			listener.onDataChanged();
+		}
+	}
+
 	//pega os dados do formulario e instancia em departamento
 	private Department getFormData() {
 		Department obj = new Department();
