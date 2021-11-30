@@ -17,6 +17,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 import model.services.DepartmentService;
+import model.services.SellerService;
 
 //controller implementando inicializable pr padrao nome do controller fica nome da view seguido da palvra controller
 public class MainViewController implements Initializable {
@@ -34,7 +35,13 @@ public class MainViewController implements Initializable {
 	// metodos
 	@FXML
 	public void onMenuItemVendedor() {
-		System.out.println("Vendedor");
+		//carrega a tela passando expresao lambda como parametro controller
+				loadView("/gui/SellerList.fxml", (SellerListController controller) -> {
+					//injeta dependencia do service no controller
+					controller.setSellerService(new SellerService());
+					//atualiza os dados
+					controller.updateTableView();
+					});
 	}
 
 	@FXML
