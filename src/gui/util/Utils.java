@@ -9,7 +9,7 @@ public class Utils {
 
 	// funçaõ que retorna o palco atual que recebe como parametro o evento que o
 	// botao recebeu
-	public static Stage cuurentStage(ActionEvent event) {
+	public static Stage currentStage(ActionEvent event) {
 		// getSouce pega tipo object generico , colocar downcasting na forma de node
 		// pega a cena e depois pega a janela window
 		// converter para stage

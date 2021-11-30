@@ -95,7 +95,7 @@ public class DepartmentFormController implements Initializable{
 		//se salvar com sucesso chamar o metodo para atualizar lista
 		notifyDataChangeListerners();
 		//depois que salvar fechar a janela atual pegando o paramentro da janela atual
-		Utils.cuurentStage(event).close();
+		Utils.currentStage(event).close();
 		}
 		//tratar o validationException 
 		catch(ValidationException e) {
@@ -151,7 +151,7 @@ public class DepartmentFormController implements Initializable{
 	//para cancelar fechando a janela passar evento da janela atual
 	@FXML
 	public void onBtCancelAction(ActionEvent event) {
-		Utils.cuurentStage(event).close();
+		Utils.currentStage(event).close();
 	}
 	
 	
@@ -180,7 +180,7 @@ public class DepartmentFormController implements Initializable{
 		}
 		//valueof converte o id para inteiro pois a caixinha de texto é string
 		txtId.setText(String.valueOf(entity.getId()));
-		txtId.setText(entity.getName());
+		txtName.setText(entity.getName());
 	}
 	
 	//metodo para escrever no label na tela se houve algum erro
