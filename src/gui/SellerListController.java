@@ -31,6 +31,7 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import model.entities.Seller;
+import model.services.DepartmentService;
 import model.services.SellerService;
 
 public class SellerListController implements Initializable, DataChangeListener {
@@ -149,8 +150,11 @@ public class SellerListController implements Initializable, DataChangeListener {
 			// injetar o departamento nesse controlador
 			controller.setSeller(obj);
 			// injetar o DepartamentService
-			controller.setSellerService(new SellerService());
-
+			controller.setServices(new SellerService(), new DepartmentService());
+			
+			// chama o metodo para carregar os departamentos do banco de dados para o controller a combobox
+			controller.CarregarObjetosAssociados();
+			
 			// increver este objeto SellerListController para ser um listenner daquele
 			// evento
 			// quando alterar ele escuta aquele evento que atualizou eu me inscrevo com
@@ -177,6 +181,8 @@ public class SellerListController implements Initializable, DataChangeListener {
 			dialogStage.initModality(Modality.WINDOW_MODAL);
 			dialogStage.showAndWait();
 		} catch (IOException e) {
+			//aparace as mensagens de erro  que aparacer
+			e.printStackTrace();
 			Alerts.showAlert("IoException", "Erro de carregamento", e.getMessage(), AlertType.ERROR);
 		}
 	}

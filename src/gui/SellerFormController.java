@@ -15,16 +15,24 @@ import gui.listeners.DataChangeListener;
 import gui.util.Alerts;
 import gui.util.Constraints;
 import gui.util.Utils;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.util.Callback;
+import model.entities.Department;
 import model.entities.Seller;
 import model.exceptions.ValidationException;
+import model.services.DepartmentService;
 import model.services.SellerService;
 
 //controlador da tela SellerForm
@@ -35,6 +43,8 @@ public class SellerFormController implements Initializable {
 
 	// dependencia de departmentservice
 	private SellerService service;
+
+	private DepartmentService departmentService;
 
 	// guarda uma lista de objetos que quiera receber o evento de atualizacao da
 	// lista
@@ -56,6 +66,10 @@ public class SellerFormController implements Initializable {
 
 	@FXML
 	private TextField txtBaseSalary;
+
+	// combobox cujo os objetos serão do tipo Department
+	@FXML
+	private ComboBox<Department> comboBoxDepartment;
 
 	// label com mensagem de erro
 	@FXML
@@ -79,15 +93,20 @@ public class SellerFormController implements Initializable {
 	@FXML
 	private Button btCancel;
 
+	// lista departamento do banco de dados com observableList
+	private ObservableList<Department> obsLista;
+
 	// metodo para implemtar set do entity criado em cima do department
 	// criou a instacia contrutor do departamento no controlador
 	public void setSeller(Seller entity) {
 		this.entity = entity;
 	}
 
-	// metodoset do SellerService criando instancia construtor
-	public void setSellerService(SellerService service) {
+	// metodoset do Services injeta 2 dependencia services do seller e department
+	// (construtores)
+	public void setServices(SellerService service, DepartmentService departmentService) {
 		this.service = service;
+		this.departmentService = departmentService;
 	}
 
 	// metodo para inscrever na lista atualizada listener
@@ -202,6 +221,9 @@ public class SellerFormController implements Initializable {
 		Constraints.setTextFieldMaxLength(txtEmail, 60);
 		// formato para data no DatePicker
 		Utils.formatDatePicker(dpBirthDate, "dd/MM/yyyy");
+		
+		//chama o metodo para iniciar o combobox com os departamentos
+		initializeComboBoxDepartment();
 	}
 
 	// pega os dados do vendedor e joga no formulário
@@ -226,6 +248,37 @@ public class SellerFormController implements Initializable {
 		if (entity.getBirthDate() != null) {
 			dpBirthDate.setValue(LocalDate.ofInstant(entity.getBirthDate().toInstant(), ZoneId.systemDefault()));
 		}
+		
+		//preenche a combo com o departamento que está associado com o vendedor e mostra na tela
+		//se o departamento é nulo este vendedor é novo
+		if((entity.getDepartment() == null)) {
+		// combobox esteja selecionado no primeiro elemento dele
+			comboBoxDepartment.getSelectionModel().selectFirst();
+		}
+		//se nao for nulo eu seleciono na comboeste departamento que esta associado ao vendedor
+		else {
+			comboBoxDepartment.setValue(entity.getDepartment());	
+		}
+	}	
+
+	// metodo chama o departamentservices e carrega os departamento do banco de
+	// dados preenchendo a nossa lista com esses departamentos
+	public void CarregarObjetosAssociados() {
+		//se o departmentSevice estiver nulo lança exceção com uma msg pro usuario
+		if(departmentService == null) {
+			throw new IllegalStateException("DeparmentService estava nulo");
+		}
+		// carregamos os departamentos do banco de dados para a lista
+		//findall busca os departamentos
+		List<Department> list = departmentService.findAll();
+		
+		//jogar os departamento para observablelist
+		//obslista é o nome da lista que criamos la em cima
+		//FXCollection joga para obslista
+		obsLista = FXCollections.observableArrayList(list);
+		
+		//seta lista com a lista do combobox
+		comboBoxDepartment.setItems(obsLista);
 	}
 
 	// metodo para escrever no label na tela se houve algum erro
@@ -242,5 +295,18 @@ public class SellerFormController implements Initializable {
 			labelErrorName.setText(errors.get("name"));
 		}
 
+	}
+	
+	//inicializa o combobox com os departamentos
+	private void initializeComboBoxDepartment() {
+		Callback<ListView<Department>, ListCell<Department>> factory = lv -> new ListCell<Department>() {
+			@Override
+			protected void updateItem(Department item, boolean empty) {
+				super.updateItem(item, empty);
+				setText(empty ? "" : item.getName());
+			}
+		};
+		comboBoxDepartment.setCellFactory(factory);
+		comboBoxDepartment.setButtonCell(factory.call(null));
 	}
 }
