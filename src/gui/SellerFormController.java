@@ -1,9 +1,11 @@
 package gui;
 
 import java.net.URL;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -36,6 +38,7 @@ import model.services.DepartmentService;
 import model.services.SellerService;
 
 //controlador da tela SellerForm
+//para usar o tab e percorrer os campos da tela, basta colocar um debaixo do outro no SceneBuilder
 public class SellerFormController implements Initializable {
 
 	// dependencia do departamento
@@ -179,15 +182,57 @@ public class SellerFormController implements Initializable {
 		obj.setId((Utils.tryParseToInt(txtId.getText())));
 
 		// verificar se txt name esta vazio
-		// se igual a null ou igual a string vazio equals
-		if (txtName.getText() == null || txtName.getText().trim().equals("")) {
-			// adicona erro na exceçaõ para guardar no map na classe ValidationException
-			// exeption é o nome da instancia que fiz acima
-			// adicona o nome do campo e a mensagem
-			exception.addError("name", "O campo não pode ser vazio");
-		}
-		obj.setName(txtName.getText());
+				// se igual a null ou igual a string vazio equals
+				if (txtName.getText() == null || txtName.getText().trim().equals("")) {
+					// adicona erro na exceçaõ para guardar no map na classe ValidationException
+					// exeption é o nome da instancia que fiz acima
+					// adicona o nome do campo e a mensagem
+					exception.addError("name", "O campo não pode ser vazio");
+				}
+				obj.setName(txtName.getText());
 
+				
+				
+				// verificar se txt email esta vazio
+				// se igual a null ou igual a string vazio equals
+				if (txtEmail.getText() == null || txtEmail.getText().trim().equals("")) {
+					// adicona erro na exceçaõ para guardar no map na classe ValidationException
+					// exeption é o nome da instancia que fiz acima
+					// adicona o nome do campo e a mensagem
+					exception.addError("email", "O campo não pode ser vazio");
+				}
+				obj.setEmail(txtEmail.getText());
+				
+				//se o valor do datepicker for nulo significa que nao foi selecionado..gerar exceção
+				if(dpBirthDate.getValue()==null) {
+					exception.addError("birthDate", "O campo não pode ser vazio");
+				}
+				else {
+				//para pegar o valor do datepicker
+				//instant recebe o conteudo do datepicker
+				//atStartOfDay converte a data escolhida no horario do computadpr do usuario
+				Instant instant = Instant.from(dpBirthDate.getValue().atStartOfDay(ZoneId.systemDefault()));
+				//o meu obejto espera um tipo date converte instant para date date.from(instant)
+				obj.setBirthDate(Date.from(instant));
+				}
+				
+				
+				//para pegar salario
+				
+				// verificar se txtBaseSalary esta vazio
+				// se igual a null ou igual a string vazio equals
+				if (txtBaseSalary.getText() == null || txtBaseSalary.getText().trim().equals("")) {
+					// adicona erro na exceçaõ para guardar no map na classe ValidationException
+					// exeption é o nome da instancia que fiz acima
+					// adicona o nome do campo e a mensagem
+					exception.addError("baseSalary", "O campo não pode ser vazio");
+				}
+				//chama o metodo em utils chamado  tryparseToDouble
+				obj.setBaseSalary(Utils.tryParseToDouble(txtBaseSalary.getText()));
+				
+				//associar o departamento, pega o valor da combobox e joga pro meu obj
+				obj.setDepartment(comboBoxDepartment.getValue());
+				
 		// depois que passar disso mesmo vazio eu vou setar
 		// se existir algum erro eu lanço a minha exceção
 		if (exception.getErrors().size() > 0) {
@@ -290,10 +335,23 @@ public class SellerFormController implements Initializable {
 		// testar se contem o valor name, se existir eu pego o label na tela e escrevo o
 		// texto dele com a mensagem de erro
 		// setar o label
-		if (fields.contains("name")) {
+		/*trocar pelo comando valido abaixo if (fields.contains("name")) {
 			// joga para o label de erros la na tela
 			labelErrorName.setText(errors.get("name"));
 		}
+		//apaga a label erro na tela 
+		else {
+			labelErrorName.setText("");
+		}*/
+		//trocar por
+		//operador ternario se for verdadeiro coloca o errors.get("name") se for falso a label de erro recebe vazio""
+		//quando for cadastradar um novo vendedor e esquecer de algum campo ele vai apresentar uma label de campo vazio
+		//quando vc preencher alguns campos e deixarf outros vazios ele vai apagara alabel de rro que vc preencheu e deixar a label de rro somente do campo que falta preencher
+		labelErrorName.setText((fields.contains("name")? errors.get("name") : ""));
+		labelErrorEmail.setText((fields.contains("email")? errors.get("email") : ""));
+		labelErrorBirthDate.setText((fields.contains("birthDate")? errors.get("birthDate") : ""));
+		labelErrorBaseSalary.setText((fields.contains("baseSalary")? errors.get("baseSalary") : ""));
+		
 
 	}
 	
